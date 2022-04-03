@@ -3,21 +3,27 @@ import axios from "axios";
 import { Row, Col } from "react-bootstrap";
 
 // Components
-import Pokemon from "../components/Pokemon";
+import MyPokemon from "../components/MyPokemon";
 import Loader from "../components/Loader";
 
-const Homepage = () => {
+const MyPokemonPage = () => {
   const [pokemon, setPokemon] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const getPokemonList = async () => {
     let pokemonArray = [];
-    for (let i = 1; i <= 151; i++) {
-      pokemonArray.push(await getPokemonData(i));
+    var myPokemon = JSON.parse(window.localStorage.getItem("myPokemon"));
+    if(myPokemon!=null){
+      for (let i = 0; i < myPokemon.length; i++) {
+        const pokemonData = {
+          name: myPokemon[i].name,
+          data: await getPokemonData(myPokemon[i].id)
+        }
+        pokemonArray.push(pokemonData);
+      }
+      setPokemon(pokemonArray);
+      setLoading(false);
     }
-    console.log(pokemonArray);
-    setPokemon(pokemonArray);
-    setLoading(false);
   };
 
   const getPokemonData = async (id) => {
@@ -36,8 +42,8 @@ const Homepage = () => {
       ) : (
         <Row>
           {pokemon.map((p) => (
-            <Col key={p.data.name} xs={6} sm={6} md={3} lg={3} xl={3}>
-              <Pokemon pokemon={p.data} />
+            <Col key={p.name} xs={6} sm={6} md={4} lg={4} xl={4}>
+              <MyPokemon pokemon={p} />
             </Col>
           ))}
         </Row>
@@ -46,4 +52,4 @@ const Homepage = () => {
   );
 };
 
-export default Homepage;
+export default MyPokemonPage;

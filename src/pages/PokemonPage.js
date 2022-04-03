@@ -1,99 +1,133 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { Card, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Card, Row, Col } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 // Components
-import Loader from '../components/Loader';
+import Loader from "../components/Loader";
 
 const PokemonPage = ({ match }) => {
+  const [pokemonDetails, setPokemonDetails] = useState();
+  const [loading, setLoading] = useState(true);
 
-    const [pokemonDetails, setPokemonDetails] = useState();
-    const [loading, setLoading] = useState(true);
+  const id = match.params.id;
 
-    const id = match.params.id;
+  const getPokemon = async (id) => {
+    const details = await getPokemonData(id);
+    setPokemonDetails(details.data);
+    // console.log(details.data);
+    setLoading(false);
+  };
 
-    const getPokemon = async (id) => {
-        const details = await getPokemonData(id);
-        setPokemonDetails(details.data);
-        console.log(details.data)
-        setLoading(false);
-    }
+  const getPokemonData = async (id) => {
+    const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    return res;
+  };
 
-    const getPokemonData = async (id) => {
-        const res = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
-        return res;
-    }
+  useEffect(() => {
+    getPokemon(id);
+  }, []);
 
-    useEffect(() => {
-        getPokemon(id);
-    }, [])
-
-    return (
-        <>
-            {loading ? (
-                <Loader/>
-            ) : (
+  return (
+    <>
+      {loading ? (
+        <Loader />
+      ) : (
+        <Card className={`my-3 rounded text-center shadow p-3`}>
+          <Link to={`/pokemon/${pokemonDetails.id}`}>
+            <Card.Img
+              style={{ height: "15rem" }}
+              src={pokemonDetails.sprites.other.dream_world.front_default}
+              variant="top"
+            />
+          </Link>
+          <Card.Body className={`${pokemonDetails.types[0].type.name} rounded`}>
+            <Link to={`/pokemon/${pokemonDetails.name}`} className="link-name">
+              <Card.Title as="div">
                 <Row>
-                    <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-                        <Card className='my-3 p-3 rounded text-center shadow p-3 mb-5 bg-white' style={{ border: 'none' }}>
-                            <Link to={`/pokemon/${pokemonDetails.id}`}>
-                                <Card.Img style={{ width: '15rem' }} src={pokemonDetails.sprites.front_default} variant='top'/>
-                            </Link>
-                            <Card.Body className={`${pokemonDetails.types[0].type.name} rounded text-white`}>
-                                <Link to={`/pokemon/${pokemonDetails.name}`} className='link-name'>
-                                    <Card.Title as='div'>
-                                        <strong>#{pokemonDetails.id} {pokemonDetails.name.charAt(0).toUpperCase() + pokemonDetails.name.slice(1)}</strong>
-                                    </Card.Title>
-                                </Link>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col xs={12} sm={12} md={12} lg={12} xl={12}>
-                        <Card className='p-3 rounded text-center shadow p-3 mb-5 bg-white' style={{ border: 'none' }}>
-                            <Card.Body>
-                                <Card.Text>
-                                    <Row>
-                                        {pokemonDetails.types.map(t => (
-                                            <Col key={t.type.name}>
-                                                <div className={`${t.type.name} rounded px-4 py-1`} style={{ color: 'white' }}>
-                                                    {t.type.name.toUpperCase()}
-                                                </div>
-                                            </Col>
-                                        ))}
-                                    </Row>
-                                    <Row>
-                                        <Col>
-                                            <Card.Img style={{ width: '15rem' }} src={pokemonDetails.sprites.front_default}/>
-                                            <Card.Text>Normal Form</Card.Text>
-                                        </Col>
-                                        <Col>
-                                            <Card.Img style={{ width: '15rem' }} src={pokemonDetails.sprites.front_shiny}/>
-                                            <Card.Text>Shiny Form</Card.Text>
-                                        </Col>
-                                    </Row>
-                                    <Row className='mt-4'>
-                                        <Col  xs={12} sm={12} md={12} lg={12} xl={12}>
-                                            <div className='px-4 py-1 rounded' style={{ border: '1px black solid' }}>Abilities</div>
-                                        </Col>
-                                    </Row>
-                                    <Row className='text-center'>
-                                        {pokemonDetails.abilities.map(a => (
-                                            <Col key={a.ability.name} xs={6} sm={6} md={6} lg={6} xl={6}>
-                                                <div className={`rounded px-4 py-1`}>
-                                                    {a.ability.name.toUpperCase()}
-                                                </div>
-                                            </Col>
-                                        ))}
-                                    </Row>
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Col>
+                  <Col>
+                    <strong>
+                      #{pokemonDetails.id}{" "}
+                      {pokemonDetails.name.charAt(0).toUpperCase() +
+                        pokemonDetails.name.slice(1)}
+                    </strong>
+                  </Col>
+                  <Col>
+                    <button
+                      className="btn btn-info"
+                      onClick={() => {
+                        var isGotcha = Math.round(Math.random());
+                        // var isGotcha = 1;
+                        if (isGotcha == 1) {
+                          const pokemonName = prompt(
+                            "You caught " +
+                              `${
+                                pokemonDetails.name.charAt(0).toUpperCase() +
+                                pokemonDetails.name.slice(1)
+                              }` +
+                              ", What is your Pokemon name ?"
+                          );
+                          var newPokemon = {
+                            id: pokemonDetails.id,
+                            name: pokemonName,
+                          };
+                          console.log(newPokemon);
+                          if (
+                            JSON.parse(
+                              window.localStorage.getItem("myPokemon")
+                            ) != null
+                          ) {
+                            var myPokemon = JSON.parse(
+                              window.localStorage.getItem("myPokemon")
+                            );
+                            myPokemon.push(newPokemon);
+                            myPokemon = JSON.stringify(myPokemon);
+                            window.localStorage.setItem("myPokemon", myPokemon);
+                          } else {
+                            var myPokemon = [newPokemon];
+                            window.localStorage.setItem(
+                              "myPokemon",
+                              JSON.stringify(myPokemon)
+                            );
+                          }
+                        } else {
+                          alert(
+                            `${
+                              pokemonDetails.name.charAt(0).toUpperCase() +
+                              pokemonDetails.name.slice(1)
+                            }` + " has fled, you may try again !"
+                          );
+                        }
+                      }}
+                    >
+                      <b>Catch !</b>
+                    </button>
+                  </Col>
                 </Row>
-            )}
-        </>
-    )
-}
+              </Card.Title>
+            </Link>
+            <Card.Text>
+              <strong className="py-3 text-white">Type</strong>
+              <br />
+              {pokemonDetails.types.map((t) => (
+                <small className="text-white" key={t.type.name}>
+                  {t.type.name.toUpperCase()}{" "}
+                </small>
+              ))}
+              <br />
+              <strong className="py-3 text-white">Abilities</strong>
+              <br />
+              {pokemonDetails.abilities.map((a) => (
+                <small className="text-white" key={a.ability.name}>
+                  {a.ability.name.toUpperCase()}{" "}
+                </small>
+              ))}
+            </Card.Text>
+          </Card.Body>
+        </Card>
+      )}
+    </>
+  );
+};
 
 export default PokemonPage;
