@@ -40,7 +40,7 @@ const pokemon = ({ pokemon }) => {
               if (deletedLocalPokemon == localPokemon) deletedLocalPokemon = localPokemon.replace(release,"");
               console.log(deletedLocalPokemon);
             window.localStorage.setItem("myPokemon", deletedLocalPokemon);
-            window.location.reload(false);
+            window.location.href = window.location.href;
             }}
           >
             Release Pokemon
